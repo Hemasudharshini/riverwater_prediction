@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Level Prediction Pro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #1abc9c;
+            --background-dark: #2c3e50;
+            --soft-background: #ecf0f1;
+            --text-color: #34495e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 5px var(--accent-color); }
+            50% { box-shadow: 0 0 20px var(--accent-color); }
+        }
+
+        body {
+            font-family: 'Inter', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            overflow-x: hidden;
+        }
+
+        .app-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            margin: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-radial-gradient(
+                circle at center,
+                rgba(255,255,255,0.1) 0,
+                rgba(255,255,255,0.1) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .app-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .app-title i {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        .form-container {
+            padding: 2.5rem;
+            background: var(--soft-background);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: var(--background-dark);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .input-group label i {
+            margin-right: 0.75rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .input-group:hover label i {
+            transform: scale(1.2) rotate(360deg);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.85rem;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(26,188,156,0.2);
+        }
+
+        .submit-btn {
+            grid-column: 1 / -1;
+            padding: 1.1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .submit-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .submit-btn:hover i {
+            transform: rotate(360deg);
+        }
+
+        .app-footer {
+            background: var(--background-dark);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <header class="app-header">
+            <div class="app-title">
+                <i class="fas fa-water"></i>
+                <h1>Water Level Prediction Pro</h1>
+                <i class="fas fa-chart-line"></i>
+            </div>
+        </header>
+
+        <div class="form-container">
+            <form id="predictionForm" action="/predict" method="post">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="historical_water_level">
+                            <i class="fas fa-ruler-vertical"></i>
+                            Historical Water Level
+                        </label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            id="historical_water_level" 
+                            name="historical_water_level" 
+                            required 
+                            placeholder="Enter water level"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="rainfall">
+                            <i class="fas fa-cloud-rain"></i>
+                            Rainfall (mm)
+                        </label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            id="rainfall" 
+                            name="rainfall" 
+                            required 
+                            placeholder="Precipitation amount"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="temperature">
+                            <i class="fas fa-thermometer-half"></i>
+                            Temperature (°C)
+                        </label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            id="temperature" 
+                            name="temperature" 
+                            required 
+                            placeholder="Current temperature"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="seasonality_month">
+                            <i class="fas fa-calendar-alt"></i>
+                            Seasonality Month
+                        </label>
+                        <input 
+                            type="number" 
+                            id="seasonality_month" 
+                            name="seasonality_month" 
+                            required 
+                            placeholder="Month (1-12)"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="upstream_flow">
+                            <i class="fas fa-wave-square"></i>
+                            Upstream Flow (m³/s)
+                        </label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            id="upstream_flow" 
+                            name="upstream_flow" 
+                            required 
+                            placeholder="Water flow rate"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="evaporation">
+                            <i class="fas fa-tint-slash"></i>
+                            Evaporation (mm)
+                        </label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            id="evaporation" 
+                            name="evaporation" 
+                            required 
+                            placeholder="Water loss rate"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="soil_moisture">
+                            <i class="fas fa-seedling"></i>
+                            Soil Moisture (%)
+                        </label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            id="soil_moisture" 
+                            name="soil_moisture" 
+                            required 
+                            placeholder="Ground water content"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="wind_speed">
+                            <i class="fas fa-wind"></i>
+                            Wind Speed (m/s)
+                        </label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            id="wind_speed" 
+                            name="wind_speed" 
+                            required 
+                            placeholder="Wind velocity"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="humidity">
+                            <i class="fas fa-percent"></i>
+                            Humidity (%)
+                        </label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            id="humidity" 
+                            name="humidity" 
+                            required 
+                            placeholder="Air moisture"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="pressure">
+                            <i class="fas fa-compress-arrows-alt"></i>
+                            Pressure (hPa)
+                        </label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            id="pressure" 
+                            name="pressure" 
+                            required 
+                            placeholder="Atmospheric pressure"
+                        >
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-calculator"></i>
+                        Predict Water Level
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <footer class="app-footer">
+            <p>© 2024 Water Level Prediction Pro | Advanced Hydrological Modeling</p>
+        </footer>
+    </div>
+
+    <script>
+        // Interactive form validation and animations
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            const inputs = this.querySelectorAll('input');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                if (!input.value) {
+                    input.style.borderColor = 'red';
+                    isValid = false;
+                } else {
+                    input.style.borderColor = 'transparent';
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all fields correctly.');
+            }
+        });
+
+        // Hover and focus interactions
+        document.querySelectorAll('.input-group input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
+            });
+
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+                this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            });
+        });
+    </script>
+</body>
+</html>

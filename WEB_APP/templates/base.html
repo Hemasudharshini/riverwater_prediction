@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Level Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4a7.png">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --background-color: #f4f6f9;
+            --text-color: #202124;
+            --accent-color: #fbbc05;
+            --gradient-primary: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: var(--gradient-primary);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        header img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: white;
+            padding: 10px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            perspective: 1000px;
+        }
+
+        .welcome-container {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 
+                0 15px 35px rgba(0,0,0,0.05),
+                0 5px 15px rgba(0,0,0,0.05);
+            max-width: 550px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('https://images.unsplash.com/photo-1620641788421-7a1c342ea54d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1374&q=80') no-repeat center center;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: 1;
+            transform: rotate(-15deg);
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-container img {
+            max-width: 200px;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .welcome-container h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-container p {
+            color: #5f6368;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            position: relative;
+            z-index: 2;
+        }
+
+        .prediction-button {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(52, 168, 83, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .prediction-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(52, 168, 83, 0.3);
+        }
+
+        .prediction-button i {
+            font-size: 1.3rem;
+        }
+
+        footer {
+            background: var(--text-color);
+            color: #e0e0e0;
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            header img {
+                width: 50px;
+                height: 50px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .welcome-container {
+                padding: 2rem;
+                margin: 1rem;
+                border-radius: 12px;
+            }
+
+            .welcome-container img {
+                max-width: 150px;
+            }
+
+            .welcome-container h2 {
+                font-size: 1.8rem;
+            }
+
+            .prediction-button {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4a7.png" alt="Water Drop Icon">
+        <h1>Deep Learning Water Level Prediction App</h1>
+    </header>
+    <main>
+        <div class="welcome-container">
+            <div class="welcome-content">
+                <img src="https://gray-ktuu-prod.gtv-cdn.com/resizer/v2/GSPWKVGZYJCPTKXDKZ242SIVCA.png?auth=d136c88a1bb5aacecdb782155f666f74c5f09d4c8df72da675f232d3fe56fbc9&width=1200&height=800&smart=true" alt="Water Level Prediction">
+                <h2>Welcome to the Water Level Prediction</h2>
+                <p>Leverage advanced machine learning to predict water levels with precision and insight. Start your analysis journey now.</p>
+                <a href="/predict-form" class="prediction-button">
+                    <i class="ri-bar-chart-line"></i>
+                    Go to Predictions
+                </a>
+            </div>
+        </div>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 Water Level Prediction. All rights reserved.</p>
+    </footer>
+</body>
+</html>
